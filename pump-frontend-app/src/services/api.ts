@@ -1,6 +1,7 @@
 import axios from "axios";
+import { config, log } from "../config/environment";
 
-const BASE_URL = "http://localhost:5073";
+const BASE_URL = config.apiUrl;
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -8,6 +9,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Request interceptor to add auth token
@@ -17,9 +19,18 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Log API requests in development
+    log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, {
+      method: config.method,
+      url: config.url,
+      data: config.data,
+    });
+
     return config;
   },
   (error) => {
+    log("API Request Error:", error);
     return Promise.reject(error);
   }
 );
