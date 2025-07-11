@@ -58,8 +58,9 @@ namespace pump_api.Services.PumpService
             var allowedFilterFields = new Dictionary<string, string>
             {
                 { "name", "Name" },
-                { "type", "Type" },
                 { "area", "Area" }
+                // Note: "type" is excluded from search due to enum limitations in dynamic LINQ
+                // Users can still sort by type and filter by specific type values
             };
 
             try

@@ -58,11 +58,31 @@ namespace pump_api.Services
       if (string.IsNullOrEmpty(searchTerm) || !allowedFields.Any())
         return query;
 
-      var searchConditions = allowedFields.Select(field =>
-          $"{field.Value}.Contains(\"{searchTerm}\")").ToList();
+      var searchConditions = new List<string>();
 
-      var searchExpression = string.Join(" OR ", searchConditions);
-      return query.Where(searchExpression);
+      foreach (var field in allowedFields)
+      {
+        // Handle different field types appropriately
+        if (field.Value == "Type" || field.Value == "Status" || field.Value == "Role")
+        {
+          // For enum fields, exclude from search as they don't work well with dynamic LINQ
+          // Users can still filter by enum values using the filter functionality
+          continue;
+        }
+        else
+        {
+          // For string fields, use direct Contains
+          searchConditions.Add($"{field.Value}.Contains(\"{searchTerm}\")");
+        }
+      }
+
+      if (searchConditions.Any())
+      {
+        var searchExpression = string.Join(" OR ", searchConditions);
+        return query.Where(searchExpression);
+      }
+
+      return query;
     }
 
     private IQueryable<T> ApplyFilters<T>(IQueryable<T> query, string filterString, Dictionary<string, string> allowedFields) where T : class
