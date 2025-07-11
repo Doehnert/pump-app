@@ -25,7 +25,20 @@ namespace pump_api.Data
         return;
 
       var users = new List<User>();
-      for (int i = 0; i < 10; i++)
+
+      // Create admin user as specified in README
+      var adminUser = new User
+      {
+        Username = "admin",
+        Role = UserRole.Admin
+      };
+      CreatePasswordHash("admin123", out byte[] adminPasswordHash, out byte[] adminPasswordSalt);
+      adminUser.PasswordHash = adminPasswordHash;
+      adminUser.PasswordSalt = adminPasswordSalt;
+      users.Add(adminUser);
+
+      // Create additional sample users
+      for (int i = 0; i < 9; i++)
       {
         var user = new User
         {

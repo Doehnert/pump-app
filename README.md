@@ -4,6 +4,32 @@
 
 Pump Master is a web-based platform for agricultural customers to manage pump assets. Built with .NET Core backend and React frontend, featuring secure authentication, pump management, search/filtering, and real-time monitoring.
 
+## Quick Start
+
+### Prerequisites
+- .NET 8.0 SDK
+- Node.js 18+ and npm
+- Git
+
+### Backend Setup
+```bash
+cd pump_api
+dotnet restore
+dotnet ef database update  # Creates and seeds the database
+dotnet run                 # Runs on http://localhost:5073
+```
+
+### Frontend Setup
+```bash
+cd pump-frontend-app
+npm install
+npm run dev              # Runs on http://localhost:5173
+```
+
+### Default Login
+- **Username**: admin
+- **Password**: admin123
+
 ## Architecture & Technology Stack
 
 ### Backend (.NET Core 8.0)
@@ -12,6 +38,112 @@ Pump Master is a web-based platform for agricultural customers to manage pump as
 - **AutoMapper**: Object mapping
 - **System.Linq.Dynamic.Core**: Dynamic query building
 - **Clean Architecture**: Controllers → Services → Data layers
+
+## Database Setup & Entity Framework
+
+### Prerequisites
+- .NET 8.0 SDK
+- SQLite (included with .NET Core)
+
+### Initial Setup
+
+1. **Navigate to the backend directory:**
+   ```bash
+   cd pump_api
+   ```
+
+2. **Install Entity Framework tools (if not already installed):**
+   ```bash
+   dotnet tool install --global dotnet-ef
+   ```
+
+3. **Create the initial migration:**
+   ```bash
+   dotnet ef migrations add InitialCreate
+   ```
+
+4. **Apply migrations to create the database:**
+   ```bash
+   dotnet ef database update
+   ```
+
+### Database Schema
+
+The application uses SQLite with the following main entities:
+
+- **Users**: Authentication and role management
+- **Pumps**: Core pump asset data
+- **PumpInspections**: Historical inspection records
+- **RefreshTokens**: JWT refresh token management
+
+### Working with Migrations
+
+**Add a new migration after model changes:**
+```bash
+dotnet ef migrations add AddNewFeature
+```
+
+**Update database with latest migrations:**
+```bash
+dotnet ef database update
+```
+
+**Remove last migration (if not applied):**
+```bash
+dotnet ef migrations remove
+```
+
+**Generate SQL script for production:**
+```bash
+dotnet ef migrations script
+```
+
+### Database Seeding
+
+The application includes a `DatabaseSeeder` that creates:
+- Default admin user (admin/admin123)
+- Sample pump data
+- Test inspection records
+
+**Automatic Seeding:**
+The seeder runs automatically on first startup when the database is empty.
+
+**Manual Seeding via API (Development Only):**
+```bash
+# Seed all data
+curl -X POST http://localhost:5073/api/dev/seed
+
+# Seed only users
+curl -X POST http://localhost:5073/api/dev/seed-users
+
+# Seed only pumps
+curl -X POST http://localhost:5073/api/dev/seed-pumps
+
+# Clear all data
+curl -X DELETE http://localhost:5073/api/dev/clear
+
+# Get database stats
+curl -X GET http://localhost:5073/api/dev/stats
+```
+
+**Note:** These endpoints are only available in development environment.
+
+### Connection String
+
+The database connection is configured in `appsettings.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=pump_api.db"
+  }
+}
+```
+
+### Development vs Production
+
+- **Development**: SQLite file (`pump_api.db`)
+- **Production**: Azure SQL Database or SQL Server
+- **Testing**: In-memory database for unit tests
 
 ### Frontend (React + TypeScript)
 - **Material-UI**: Professional UI components
